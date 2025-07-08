@@ -25,6 +25,7 @@ RULES:
 8.  Keep the tone professional but with a hint of corporate satire.
 `;
 
+const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
 export async function getNextStep(previousStory: string, choice: string): Promise<GameState> {
   const userPrompt = `
@@ -37,6 +38,10 @@ export async function getNextStep(previousStory: string, choice: string): Promis
     Generate the next step in the game based on this choice.
   `;
 
+  var i = 0;
+
+  for (i = 0; i < 5; i++) {
+  
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash-preview-04-17",
@@ -69,15 +74,16 @@ export async function getNextStep(previousStory: string, choice: string): Promis
     } else {
       throw new Error("Invalid response structure from API");
     }
-
   } catch (error) {
     console.error("Error fetching or parsing next game step:", error);
     // Fallback in case of parsing or API error
-    return {
-      story: "An existential crisis hits the project. The server room is questioning the nature of its reality, and your teams have started a philosophy club instead of working. This is probably a loss.",
-      options: ["Restart from the beginning"],
-      gameOver: true,
-      win: false,
-    };
+    await(sleep(1000));
   }
+  }
+      return {
+        story: "An existential crisis hits the project. The server room is questioning the nature of its reality, and your teams have started a philosophy club instead of working. This is probably a loss.",
+        options: ["Restart from the beginning"],
+        gameOver: true,
+        win: false,
+    };
 }
