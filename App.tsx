@@ -10,6 +10,7 @@ import ShipIcon from './components/icons/ShipIcon';
 
 const INITIAL_GAME_STATE: GameState = {
   story: "You are a Senior Product Manager at 'AdNauseam,' a giant in the ad-tech world. Your new project, 'Project Chimera,' aims to revolutionize personalized advertising using a novel AI model. If you succeed, you're on the fast track to a Director role. If you fail... well, the job market is tough. Your first big meeting is today. You need to get both Engineering and GTM teams aligned on your vision.",
+  summary: "0. Game Started\n",
   options: ["Let's do this! Start the meeting."],
   gameOver: false,
   win: false,
@@ -24,7 +25,7 @@ const App: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const nextState = await getNextStep(gameState.story, option);
+      const nextState = await getNextStep(gameState.story, gameState.summary, option);
       setGameState(nextState);
     } catch (e) {
       console.error(e);

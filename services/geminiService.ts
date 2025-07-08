@@ -16,19 +16,24 @@ The core conflict involves navigating challenges with two key teams: the cynical
 
 RULES:
 1.  You MUST ALWAYS respond with a valid JSON object.
-2.  The JSON object must strictly follow this structure: { "story": string, "options": string[], "gameOver": boolean, "win": boolean }.
+2.  The JSON object must strictly follow this structure: { "story": string, "summary: string, "options": string[], "gameOver": boolean, "win": boolean }.
 3.  The "story" should be a short, engaging paragraph (3-5 sentences) written in the second person ("You enter the room..."). It must describe the outcome of the player's last choice and the new situation.
 4.  The "options" array must contain 2 to 4 short, actionable choices for the player.
-5.  Based on the player's choice, advance the story. Choices must have meaningful consequences, affecting relations with Engineering or GTM.
-6.  The game can end in a win (product shipped) or a variety of losses (project canceled, getting fired, team revolt).
-7.  When the game ends, set "gameOver" to true. The final "story" should describe the end state. If the player won, also set "win" to true.
-8.  Keep the tone professional but with a hint of corporate satire.
+5.  The "summary" should be a summary of important things that have happened in the story thus far.  Append one numbered line to the summary with important information about the choice the user made.
+6.  Based on the player's choice, advance the story. Choices must have meaningful consequences, affecting relations with Engineering or GTM.
+7.  The game can end in a win (product shipped) or a variety of losses (project canceled, getting fired, team revolt).
+8.  When the game ends, set "gameOver" to true. The final "story" should describe the end state. If the player won, also set "win" to true.
+9.  Keep the tone professional but with a hint of corporate satire.
 `;
 
 const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
-export async function getNextStep(previousStory: string, choice: string): Promise<GameState> {
+export async function getNextStep(previousStory: string, summary: string, choice: string): Promise<GameState> {
   const userPrompt = `
+    This is the summary of events so far:
+    ---
+    ${summary}
+    ---
     This was the previous situation:
     ---
     ${previousStory}
@@ -44,7 +49,9 @@ export async function getNextStep(previousStory: string, choice: string): Promis
   
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-04-17",
+      //model: "gemini-2.5-flash-preview-04-17",
+      //model: "gemini-2.0-flash-lite",
+      model: "gemini-2.5-pro",
       contents: userPrompt,
       config: {
         systemInstruction: systemInstruction,
@@ -61,15 +68,18 @@ export async function getNextStep(previousStory: string, choice: string): Promis
       jsonStr = match[2].trim();
     }
     
-    const parsedData = JSON.parse(jsonStr);
+    let parsedData = JSON.parse(jsonStr);
 
     // Basic validation to ensure the response shape is correct.
     if (
       typeof parsedData.story === 'string' &&
+      typeof parsedData.summary === 'string' &&
       Array.isArray(parsedData.options) &&
       typeof parsedData.gameOver === 'boolean' &&
       typeof parsedData.win === 'boolean'
     ) {
+      //parsedData.summary = summary + "\n" + parsedData.summary;
+      console.log(parsedData.summary);
       return parsedData as GameState;
     } else {
       throw new Error("Invalid response structure from API");
@@ -82,6 +92,7 @@ export async function getNextStep(previousStory: string, choice: string): Promis
   }
       return {
         story: "An existential crisis hits the project. The server room is questioning the nature of its reality, and your teams have started a philosophy club instead of working. This is probably a loss.",
+        summary: "",
         options: ["Restart from the beginning"],
         gameOver: true,
         win: false,
