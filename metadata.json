@@ -1,0 +1,5 @@
+{
+  "name": "AdTech PM Simulator",
+  "description": "A dynamic text-based adventure game where you play as a Product Manager at a Silicon Valley ad-tech company. Your goal is to ship a revolutionary new product by navigating challenges with Engineering and GTM teams, powered by the Gemini API.",
+  "requestFramePermissions": []
+}
